@@ -1,0 +1,7 @@
+{
+  "name": "Inventory Scanner",
+  "description": "An offline-first web application for inventory management. Users can upload an Excel file, scan product barcodes using a camera or manual entry, and export the scanned codes as a .TXT file. The application is designed to work entirely on the client-side.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
