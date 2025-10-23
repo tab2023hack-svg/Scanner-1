@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 const iconProps = {
@@ -82,5 +81,22 @@ export const SearchIcon: React.FC = () => (
     <svg {...iconProps} className="w-5 h-5 text-gray-400">
         <circle cx="11" cy="11" r="8"></circle>
         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+    </svg>
+);
+
+export const VibrationOnIcon: React.FC = () => (
+    <svg {...iconProps} className="w-6 h-6">
+        <path d="M16 3H8C6.89543 3 6 3.89543 6 5V19C6 20.1046 6.89543 21 8 21H16C17.1046 21 18 20.1046 18 19V5C18 3.89543 17.1046 3 16 3Z" />
+        <path d="M2 10h2" />
+        <path d="M2 14h2" />
+        <path d="M20 10h2" />
+        <path d="M20 14h2" />
+    </svg>
+);
+
+export const VibrationOffIcon: React.FC = () => (
+    <svg {...iconProps} className="w-6 h-6">
+        <path d="M16 3H8C6.89543 3 6 3.89543 6 5V19C6 20.1046 6.89543 21 8 21H16C17.1046 21 18 20.1046 18 19V5C18 3.89543 17.1046 3 16 3Z" />
+        <line x1="2" y1="2" x2="22" y2="22" />
     </svg>
 );
