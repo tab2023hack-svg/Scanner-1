@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { CameraIcon, BarcodeIcon } from './Icons';
 
@@ -16,10 +17,11 @@ const Scanner: React.FC<ScannerProps> = ({ onCodeScanned, disabled }) => {
     const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
-        if (!disabled) {
+        // Focus the input when the component is enabled and the camera is not active.
+        if (!disabled && !isCameraActive) {
             inputRef.current?.focus();
         }
-    }, [disabled]);
+    }, [disabled, isCameraActive]);
 
     const stopCamera = useCallback(() => {
         if (codeReaderRef.current) {
@@ -126,8 +128,8 @@ const Scanner: React.FC<ScannerProps> = ({ onCodeScanned, disabled }) => {
                         ref={inputRef}
                         type="text"
                         onKeyDown={handleInputKeyDown}
-                        placeholder="امسح الباركود هنا أو أدخله يدويًا..."
-                        disabled={disabled}
+                        placeholder={isCameraActive ? 'الكاميرا نشطة...' : 'امسح الباركود هنا أو أدخله يدويًا...'}
+                        disabled={disabled || isCameraActive}
                         dir="ltr"
                         className="w-full pl-3 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition disabled:bg-gray-200 dark:disabled:bg-gray-700"
                     />
