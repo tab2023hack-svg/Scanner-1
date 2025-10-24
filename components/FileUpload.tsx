@@ -64,12 +64,12 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileLoaded, onError }) => {
             />
             <button
                 onClick={handleClick}
-                className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition"
+                className="w-full flex items-center justify-center gap-2 bg-[#00ff9d]/20 text-[#00ff9d] font-bold py-3 px-4 rounded-xl border border-[#00ff9d] hover:bg-[#00ff9d] hover:text-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#111113] focus:ring-[#00ff9d] transition-all duration-200 glow-on-hover"
             >
                 <UploadIcon />
                 اختر ملف Excel
             </button>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
+            <p className="text-xs text-gray-500 mt-2 text-center">
                 يجب أن يحتوي الملف على الأعمدة F, G, H, I.
             </p>
         </div>

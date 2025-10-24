@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { CameraIcon, BarcodeIcon } from './Icons';
 
@@ -103,14 +102,14 @@ const Scanner: React.FC<ScannerProps> = ({ onCodeScanned, disabled }) => {
                 <button
                     onClick={handleToggleCamera}
                     disabled={disabled}
-                    className="w-full flex items-center justify-center gap-2 bg-purple-600 text-white font-bold py-2 px-4 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition disabled:bg-gray-400"
+                    className="w-full flex items-center justify-center gap-2 bg-[#00ff9d]/20 text-[#00ff9d] font-bold py-3 px-4 rounded-xl border border-[#00ff9d] hover:bg-[#00ff9d] hover:text-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#111113] focus:ring-[#00ff9d] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed glow-on-hover"
                 >
                     <CameraIcon />
                     {isCameraActive ? 'إيقاف الكاميرا' : 'تفعيل الكاميرا'}
                 </button>
                 <div className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${isCameraActive ? 'grid-rows-[1fr] mt-4' : 'grid-rows-[0fr]'}`}>
                     <div className="overflow-hidden">
-                       <div className="border-4 border-purple-400 rounded-lg aspect-video">
+                       <div className="border-2 border-[#00ff9d]/50 rounded-xl aspect-video bg-black">
                             <video ref={videoRef} className="w-full h-full object-cover" playsInline autoPlay muted />
                        </div>
                     </div>
@@ -131,7 +130,7 @@ const Scanner: React.FC<ScannerProps> = ({ onCodeScanned, disabled }) => {
                         placeholder={isCameraActive ? 'الكاميرا نشطة...' : 'امسح الباركود هنا أو أدخله يدويًا...'}
                         disabled={disabled || isCameraActive}
                         dir="ltr"
-                        className="w-full pl-3 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition disabled:bg-gray-200 dark:disabled:bg-gray-700"
+                        className="w-full pl-3 pr-10 py-3 border border-[#1a1a1d] rounded-xl bg-[#0b0b0c] text-gray-200 focus:ring-2 focus:ring-[#00ff9d] focus:border-[#00ff9d] outline-none transition-all duration-200 disabled:bg-[#0b0b0c]/50 disabled:cursor-not-allowed"
                     />
                 </div>
             </div>
