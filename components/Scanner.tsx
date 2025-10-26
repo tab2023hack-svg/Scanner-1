@@ -11,6 +11,7 @@ interface ScannerProps {
 
 const Scanner: React.FC<ScannerProps> = ({ onCodeScanned, disabled }) => {
     const [isCameraActive, setIsCameraActive] = useState(false);
+    const [detectedCode, setDetectedCode] = useState<string | null>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
     const codeReaderRef = useRef<any>(null);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -28,6 +29,7 @@ const Scanner: React.FC<ScannerProps> = ({ onCodeScanned, disabled }) => {
             codeReaderRef.current = null;
         }
         setIsCameraActive(false);
+        setDetectedCode(null);
     }, []);
 
     const startCamera = useCallback(async () => {
@@ -57,7 +59,7 @@ const Scanner: React.FC<ScannerProps> = ({ onCodeScanned, disabled }) => {
                 setIsCameraActive(true);
                 codeReader.decodeFromVideoDevice(deviceId, videoRef.current, (result, err) => {
                     if (result) {
-                        onCodeScanned(result.getText());
+                        setDetectedCode(result.getText());
                     }
                     if (err && !(err instanceof ZXing.NotFoundException)) {
                         console.error('Barcode scan error:', err);
@@ -69,7 +71,7 @@ const Scanner: React.FC<ScannerProps> = ({ onCodeScanned, disabled }) => {
             alert('لا يمكن الوصول إلى الكاميرا. الرجاء التأكد من منح الأذونات اللازمة.');
             setIsCameraActive(false);
         }
-    }, [onCodeScanned, disabled]);
+    }, [disabled]);
 
     useEffect(() => {
         return () => {
@@ -82,6 +84,13 @@ const Scanner: React.FC<ScannerProps> = ({ onCodeScanned, disabled }) => {
             stopCamera();
         } else {
             startCamera();
+        }
+    };
+
+    const handleAddDetectedCode = () => {
+        if (detectedCode) {
+            onCodeScanned(detectedCode);
+            setDetectedCode(null);
         }
     };
 
@@ -114,6 +123,25 @@ const Scanner: React.FC<ScannerProps> = ({ onCodeScanned, disabled }) => {
                        </div>
                     </div>
                 </div>
+
+                {isCameraActive && (
+                    <div className="mt-4 text-center space-y-3">
+                        <div>
+                             <p className="text-sm text-gray-400 h-5">
+                                {detectedCode ? 'الكود المكتشف:' : 'وجه الكاميرا نحو الباركود...'}
+                            </p>
+                            <p className="font-mono text-2xl text-white h-8 my-1 tracking-wider">{detectedCode || ' '}</p>
+                        </div>
+                        <button
+                            onClick={handleAddDetectedCode}
+                            disabled={!detectedCode}
+                            className="w-full flex items-center justify-center gap-2 bg-green-500/20 text-green-400 font-bold py-3 px-4 rounded-xl border border-green-500 hover:enabled:bg-green-500 hover:enabled:text-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#111113] focus:ring-green-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <BarcodeIcon />
+                            إضافة الكود
+                        </button>
+                    </div>
+                )}
             </div>
 
             <div>
