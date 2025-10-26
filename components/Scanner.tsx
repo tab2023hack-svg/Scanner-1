@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { CameraIcon, BarcodeIcon, ZoomInIcon, ZoomOutIcon } from './Icons';
+import { CameraIcon, BarcodeIcon } from './Icons';
 
 // Declare ZXing as a global variable from CDN script
 declare var ZXing: any;
@@ -15,10 +15,6 @@ const Scanner: React.FC<ScannerProps> = ({ onCodeScanned, disabled }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const codeReaderRef = useRef<any>(null);
     const inputRef = useRef<HTMLInputElement>(null);
-    
-    const [zoom, setZoom] = useState(1);
-    const [zoomCapabilities, setZoomCapabilities] = useState<{ min: number; max: number; step: number; } | null>(null);
-    const streamTrackRef = useRef<MediaStreamTrack | null>(null);
 
     useEffect(() => {
         // Focus the input when the component is enabled and the camera is not active.
@@ -32,16 +28,8 @@ const Scanner: React.FC<ScannerProps> = ({ onCodeScanned, disabled }) => {
             codeReaderRef.current.reset();
             codeReaderRef.current = null;
         }
-        if (videoRef.current && videoRef.current.srcObject) {
-            const stream = videoRef.current.srcObject as MediaStream;
-            stream.getTracks().forEach(track => track.stop());
-            videoRef.current.srcObject = null;
-        }
-        streamTrackRef.current = null;
         setIsCameraActive(false);
         setDetectedCode(null);
-        setZoom(1);
-        setZoomCapabilities(null);
     }, []);
 
     const startCamera = useCallback(async () => {
@@ -55,9 +43,6 @@ const Scanner: React.FC<ScannerProps> = ({ onCodeScanned, disabled }) => {
 
             const codeReader = new ZXing.BrowserMultiFormatReader();
             codeReaderRef.current = codeReader;
-            
-            // Ensure any previous camera stream is stopped
-            stopCamera();
 
             const videoInputDevices = await codeReader.listVideoInputDevices();
             
@@ -70,32 +55,9 @@ const Scanner: React.FC<ScannerProps> = ({ onCodeScanned, disabled }) => {
             const rearCamera = videoInputDevices.find(device => /back|rear|environment/i.test(device.label));
             const deviceId = rearCamera ? rearCamera.deviceId : videoInputDevices[0].deviceId;
 
-            const constraints = { video: { deviceId: deviceId ? { exact: deviceId } : undefined, facingMode: 'environment' } };
-            const stream = await navigator.mediaDevices.getUserMedia(constraints);
-
             if (videoRef.current) {
-                videoRef.current.srcObject = stream;
-                videoRef.current.play();
-
-                const track = stream.getVideoTracks()[0];
-                streamTrackRef.current = track;
-
-                // Check and set zoom capabilities
-                const capabilities = track.getCapabilities();
-                if ('zoom' in capabilities) {
-                    // FIX: The 'zoom' capability and setting are experimental browser features and not strongly typed.
-                    // Casts are required to access their properties.
-                    const zoomCaps = capabilities.zoom as { min: number; max: number; step: number; };
-                    if (zoomCaps) {
-                         setZoomCapabilities({ min: zoomCaps.min, max: zoomCaps.max, step: zoomCaps.step });
-                         const settings = track.getSettings() as { zoom?: number };
-                         setZoom(settings.zoom || 1);
-                    }
-                }
-                
                 setIsCameraActive(true);
-                
-                codeReader.decodeFromVideoElement(videoRef.current, (result, err) => {
+                codeReader.decodeFromVideoDevice(deviceId, videoRef.current, (result, err) => {
                     if (result) {
                         setDetectedCode(result.getText());
                     }
@@ -109,27 +71,7 @@ const Scanner: React.FC<ScannerProps> = ({ onCodeScanned, disabled }) => {
             alert('لا يمكن الوصول إلى الكاميرا. الرجاء التأكد من منح الأذونات اللازمة.');
             setIsCameraActive(false);
         }
-    }, [disabled, stopCamera]);
-    
-    const handleZoomChange = (direction: 'in' | 'out') => {
-        if (!streamTrackRef.current || !zoomCapabilities) return;
-
-        let newZoom = zoom;
-        if (direction === 'in') {
-            newZoom = Math.min(zoom + zoomCapabilities.step, zoomCapabilities.max);
-        } else {
-            newZoom = Math.max(zoom - zoomCapabilities.step, zoomCapabilities.min);
-        }
-
-        streamTrackRef.current.applyConstraints({ advanced: [{ zoom: newZoom }] })
-            .then(() => {
-                setZoom(newZoom);
-            })
-            .catch(error => {
-                console.error('Error applying zoom:', error);
-            });
-    };
-
+    }, [disabled]);
 
     useEffect(() => {
         return () => {
@@ -175,31 +117,10 @@ const Scanner: React.FC<ScannerProps> = ({ onCodeScanned, disabled }) => {
                     {isCameraActive ? 'إيقاف الكاميرا' : 'تفعيل الكاميرا'}
                 </button>
                 <div className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${isCameraActive ? 'grid-rows-[1fr] mt-4' : 'grid-rows-[0fr]'}`}>
-                    <div className="overflow-hidden relative">
+                    <div className="overflow-hidden">
                        <div className="border-2 border-[#00ff9d]/50 rounded-xl aspect-video bg-black">
                             <video ref={videoRef} className="w-full h-full object-cover" playsInline autoPlay muted />
                        </div>
-                       {isCameraActive && zoomCapabilities && (
-                            <div className="absolute bottom-2 right-2 flex items-center gap-1 bg-black/60 p-1 rounded-full backdrop-blur-sm">
-                                <button
-                                    onClick={() => handleZoomChange('out')}
-                                    disabled={zoom <= zoomCapabilities.min}
-                                    aria-label="Zoom out"
-                                    className="p-2 text-white rounded-full disabled:opacity-40 enabled:hover:bg-white/20 transition-all"
-                                >
-                                    <ZoomOutIcon />
-                                </button>
-                                <span className="text-white text-xs font-mono w-10 text-center select-none">{zoom.toFixed(1)}x</span>
-                                <button
-                                    onClick={() => handleZoomChange('in')}
-                                    disabled={zoom >= zoomCapabilities.max}
-                                    aria-label="Zoom in"
-                                    className="p-2 text-white rounded-full disabled:opacity-40 enabled:hover:bg-white/20 transition-all"
-                                >
-                                    <ZoomInIcon />
-                                </button>
-                            </div>
-                        )}
                     </div>
                 </div>
 
